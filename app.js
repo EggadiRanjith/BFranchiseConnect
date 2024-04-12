@@ -11,12 +11,16 @@ const { insertNotification, fetchNotifications,updateReadStatus } = require('./c
 const { getUserProfile, getAllProfiles, searchProfiles ,fetchBusinessData,updateBusinessProfile,fetchBusinessProfile,fetchBusiness} = require('./controllers/profiles');
 const { getMessages, createMessage,getChattedUserProfiles } = require('./controllers/message');
 const { submitForm ,updateApplicationStatus,getApplicationById} = require('./controllers/applications');
-const { fetchFinancialData,submitFinancialData  } = require('./controllers/financials');
+const { fetchFinancialData,removeFranchise  } = require('./controllers/financials');
 const { fetchadmindata } =require('./controllers/admin')
-const { fetchPendingApplications , updateBusinessStatus } =require('./controllers/bussiness')
+const { fetchPendingApplications , updateBusinessStatus } =require('./controllers/business')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const fs = require('fs');
 
-const Application = require('./models/applicationforbussiness');
-const Financial = require('./models/financial');
+const fileUpload = require('express-fileupload');
+
+const Application = require('./models/applicationforbusiness');
 // Initialize the Express app and create an HTTP server
 const app = express();
 const server = http.createServer(app);
@@ -27,6 +31,8 @@ app.use(bodyParser.json());
 
 // Set your secret key for authentication
 const secretKey = process.env.JWT_SECRET || 'your_secret_key';
+
+app.use(fileUpload());
 
 // Sync the models with the database
 sequelize.sync()
@@ -77,19 +83,62 @@ app.get('/api/user/profiles', getAllProfiles);
 
 app.get('/api/user/search', searchProfiles);
 
-// POST endpoint to handle post creation
+const path = require('path');
+
+// Serve static files from the 'resources' directory
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
+
+const generateImageURL = (destinationDir,fileName) => {
+  // Replace backslashes with forward slashes in the file name
+  const relativePath = fileName.replace(/\\/g, '/');
+  // Append the relative file path to the base URL of your server
+  const baseURL = 'http://192.168.131.1:3001'; // Replace 'http://192.168.131.1:3001' with your actual server URL
+  return `${baseURL}/${destinationDir}/${relativePath}`;
+};
+
+
 app.post('/api/posts', async (req, res) => {
-  const postData = req.body;
-
   try {
-    // Save the post using the savePost function
-    const result = await savePost(postData);
+    // Check if a file was uploaded
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-    // Send a JSON response with the saved post data
-    res.status(201).json(result);
+    // Access the uploaded file from the request object
+    const uploadedFile = req.files.image;
+
+    // Move the uploaded file to a designated directory
+    const destinationDir = 'resources/posts/';
+    const fileName = `${Date.now()}_${uploadedFile.name}`;
+    const filePath = path.join(__dirname, destinationDir, fileName);
+
+    // Save the file to the server
+    uploadedFile.mv(filePath, async (err) => {
+      if (err) {
+        console.error('Error saving file:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      try {
+        // File saved successfully, continue processing
+        // Extract other form data from the request
+        const { title, content, author_id } = req.body;
+
+        // Generate the image URL
+        const imageURL = generateImageURL(destinationDir,fileName); // Pass fileName instead of filePath
+
+        // Save the post with the image URL
+        const result = await savePost({ title, content, image: imageURL, author_id });
+
+        // Send a JSON response with the saved post data
+        res.status(201).json(result);
+      } catch (error) {
+        console.error('Error saving post:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
   } catch (error) {
-    console.error('Error saving post on the server:', error);
-    // Send an error response
+    console.error('Error handling file upload:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -285,7 +334,7 @@ app.get('/api/businessProfiles/:user_id',fetchBusiness);
 
 app.get('/api/financial-data', fetchFinancialData);
 
-app.post('/api/submitData', submitFinancialData );
+app.delete('/api/removeFranchise', removeFranchise );
 
 // Route to fetch admin data
 app.get('/api/fetchadmindata', async (req, res) => {
@@ -328,7 +377,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
 });
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -3,6 +3,8 @@ const { Post } = require('../models/post');
 const Comment = require('../models/comments');
 const User = require('../models/user');
 const Notification = require('../models/notification');
+const fs = require('fs');
+const path = require('path');
 
 // Callback to be invoked after successfully saving, liking, or deleting a post
 const refreshPostsCallback = async () => {
@@ -21,19 +23,29 @@ const refreshPostsCallback = async () => {
 };
 
 // Function to save a post to the database
-const savePost = async (postData) => {
+const savePost = async (formData) => {
   try {
     // Insert post data into the 'posts' table (adjust table/column names as needed)
-    const result = await Post.create(postData);
+    const result = await Post.create(formData);
+
+    // Call the callback function to refresh the list of posts
     await refreshPostsCallback();
 
     // Return a success message or any other relevant data
-    return { success: true, message: 'Post saved successfully', post: result };
+    return {
+      success: true,
+      message: 'Post saved successfully',
+      post: result // The resulting post data
+    };
   } catch (error) {
+    // Log the error to the console
     console.error('Error saving post:', error);
-    throw error; // Propagate the error to be caught in the calling function
+
+    // Propagate the error to be caught in the calling function
+    throw error;
   }
 };
+
 
 const fetchPosts = async () => {
   try {

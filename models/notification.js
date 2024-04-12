@@ -1,8 +1,11 @@
+// Required modules and configurations
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust the path accordingly
 const User = require('./user');
 
+// Define the Notification model
 const Notification = sequelize.define('notification', {
+  // Define notification attributes
   notification_id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -38,8 +41,9 @@ const Notification = sequelize.define('notification', {
   },
 });
 
-// Define associations if necessary, e.g., linking a user to notifications
+// Define associations to link users with notifications
 Notification.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
 Notification.belongsTo(User, { foreignKey: 'receiver_id', as: 'receiver' });
 
+// Export the Notification model for external use
 module.exports = Notification;

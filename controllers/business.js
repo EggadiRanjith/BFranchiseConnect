@@ -1,6 +1,6 @@
 // backend/functions/fetchPendingApplications.js
 
-const Business = require('../models/bussiness'); // Assuming you have a Business model defined
+const Business = require('../models/business'); // Assuming you have a Business model defined
 
 async function fetchPendingApplications() {
     try {

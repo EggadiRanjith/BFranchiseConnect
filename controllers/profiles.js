@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 const { Op } = require('sequelize');
 const User = require('../models/user'); // Import your Sequelize User model
-const Business = require('../models/bussiness'); // Import the Business model
-const Application = require('../models/applicationforbussiness');
+const Business = require('../models/business'); // Import the Business model
+const Application = require('../models/applicationforbusiness');
 
 const getUserProfile = async (req, res) => {
   try {

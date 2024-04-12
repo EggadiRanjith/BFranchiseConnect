@@ -1,75 +1,96 @@
-// Import the financial model
-const FinancialData = require('../models/financial');
-const Application = require('../models/applicationforbussiness');
+// controllers/financials.js
+
+// Required modules and models
+const Application = require('../models/applicationforbusiness');
+const { QueryTypes } = require('sequelize');
+const sequelize = require('../config/database');
+const Notification = require('../models/notification');
+const Business = require('../models/business');
 
 // Function to fetch financial data
 const fetchFinancialData = async (req, res) => {
   try {
-    console.log('hi')
     // Extract the parameters from the request query
-    const { application_id, business_id, user_id } = req.query;
+    const { business_id, user_id } = req.query;
 
-    // Find financial data based on the provided query parameters
-    const financialData = await FinancialData.findAll({
-      where: {
-        application_id: application_id,
-        business_id: business_id,
-        investor_id: user_id
-      }
+    // Query to fetch financial data based on the provided query parameters
+    const query = `
+      SELECT * 
+      FROM financials 
+      WHERE business_id = :business_id AND investor_id = :user_id
+    `;
+
+    // Execute the query
+    const financialData = await sequelize.query(query, {
+      replacements: { business_id, user_id },
+      type: QueryTypes.SELECT,
     });
 
     // Check if financial data is found
-    if (!financialData) {
+    if (!financialData || financialData.length === 0) {
       return res.status(404).json({ error: 'Financial data not found' });
     }
 
     // Return the fetched financial data
     res.json(financialData);
   } catch (error) {
-    console.error('Error fetching financial data:', error);
+    // Handle errors
+    console.error('Error fetching financial data:', error.message || error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-// Function to submit financial data
-const submitFinancialData = async (req, res) => {
+// Function to remove a franchise
+const removeFranchise = async (req, res) => {
   try {
-    // Extract the data from the request body
-    const { user_id, business_id, selectedDate, incomeDescription, investment, income } = req.body;
+    // Extract the franchise ID from the request body
+    const { franchiseId } = req.body;
 
-    // Find application using user_id, business_id, and with agreed status
-    const application = await Application.findOne({ 
-      user_id, 
-      business_id, 
-      application_status: 'agreed', 
-      investor_verification_status: 'agreed' 
-    });
+    // Find the application record in the database based on the franchise ID
+    const application = await Application.findOne({ where: { application_id: franchiseId } });
 
+    // Check if the application record exists
     if (!application) {
-      return res.status(404).json({ success: false, error: 'Agreed application not found' });
+      return res.status(404).json({ success: false, error: 'Franchise application not found' });
     }
+    
+    // Extract business and investor IDs
+    const businessId = application.business_id;
+    const investorId = application.investor_id;
 
-    // Create or update financial data in the database
-    const createdFinancialData = await FinancialData.create({
-      application_id: application.application_id, // Assuming _id is the primary key of Application model
-      business_id,
-      investor_id: user_id,
-      investment_date: selectedDate,
-      description: incomeDescription,
-      investment_amount:investment,
-      income_amount:income
-      // Add other fields as needed
+    // Update application and investor verification status to 'cancelled'
+    await Application.update(
+      { application_status: 'cancelled' },
+      { where: { application_id: franchiseId } }
+    );
+
+    await Application.update(
+      { investor_verification_status: 'cancelled' },
+      { where: { investor_id: investorId } }
+    );
+
+    // Fetch business details
+    const business = await Business.findOne({ where: { business_id: businessId } });
+
+    // Create a notification for franchise removal
+    const notification = await Notification.create({
+      sender_id: business.user_id,
+      receiver_id: investorId,
+      post_id: 0,
+      notification_content: 'You have been removed as a franchise',
+      notification_timestamp: new Date(),
+      read_status: 'unread',
+      type: 'franchise_removed',
     });
 
     // Return success response
-    res.status(200).json({ success: true, message: 'Financial data submitted successfully', data: createdFinancialData });
+    res.status(200).json({ success: true, message: 'Franchise removed successfully' });
   } catch (error) {
-    console.error('Error submitting financial data:', error);
+    // Handle errors
+    console.error('Error removing franchise:', error);
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
 
-
-// Export the submitFinancialData function
-module.exports = { fetchFinancialData, submitFinancialData };
-
+// Export functions
+module.exports = { fetchFinancialData, removeFranchise };

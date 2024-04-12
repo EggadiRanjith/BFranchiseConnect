@@ -2,7 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./user'); // Import the User model
-const Business = require('./bussiness'); // Import the Business model
+const Business = require('./business'); // Import the Business model
 
 const Application = sequelize.define('application', {
   application_id: {
@@ -56,14 +56,6 @@ const Application = sequelize.define('application', {
     defaultValue: 'pending',
   },
 });
-
-Application.sync()
-  .then(() => {
-    console.log('Application table synced successfully');
-  })
-  .catch((error) => {
-    console.error('Error syncing Application table:', error);
-  });
 
 // Define the foreign key relationships
 Application.belongsTo(User, { foreignKey: 'investor_id', as: 'investor' });

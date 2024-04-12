@@ -1,6 +1,6 @@
 const User = require('../models/user');
-const Business = require('../models/bussiness');
-const Application = require('../models/applicationforbussiness');
+const Business = require('../models/business');
+const Application = require('../models/applicationforbusiness');
 
 const fetchadmindata = async (req, res) => {
     try {

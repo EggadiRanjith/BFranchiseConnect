@@ -1,40 +1,77 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User  = require('../models/user');
-const bussiness  = require('../models/bussiness');
-const Application = require('../models/applicationforbussiness');
+const bussiness  = require('../models/business');
+const Application = require('../models/applicationforbusiness');
+const fileUpload = require('express-fileupload');
+const path = require('path');
+const fs = require('fs');
 
-// Registration route handler
+
 async function register(req, res) {
   try {
-    const { username, email, password, contactInfo, address ,profilePicture,user_type } = req.body;
+    const { username, email,password, contactInfo, address, user_type } = req.body;
 
-    // Hash the password before saving it to the database
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if profilePicture field exists in req.files
+    if (!req.files || !req.files.profilePicture) {
+      return res.status(400).json({ error: 'No profile picture uploaded' });
+    }
 
-    // Create a new user in the database
-    const newUser = await User.create({
-      username,
-      email,
-      user_type: user_type,
-      password: hashedPassword,
-      contact_info: contactInfo,
-      profile_picture:profilePicture,
-      address,
-    });
-    
-    res.status(201).json({ message: 'User registered successfully', user: newUser });
-    } catch (error) {
-      if (error.name === 'SequelizeUniqueConstraintError' && error.errors.length > 0 && error.errors[0].path === 'email') {
-        // Handle unique constraint error for email
-        console.error('Email already exists:', error.errors[0].message);
-        res.status(400).json({ message: 'Email already exists' });
-      } else {
+    const profilePictureFile = req.files.profilePicture;
+
+    // Create the directory if it doesn't exist
+    const destinationDir = 'resources/profiles/';
+    if (!fs.existsSync(destinationDir)) {
+      fs.mkdirSync(destinationDir, { recursive: true });
+    }
+
+    // Move the uploaded file to the designated directory
+    const fileName = `${Date.now()}_${profilePictureFile.name}`;
+    const filePath = path.join(destinationDir, fileName);
+
+    // Save the file to the server
+    profilePictureFile.mv(filePath, async (err) => {
+      if (err) {
+        console.error('Error saving file:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      try {
+        // Generate the image URL
+        const imageURL = generateImageURL(destinationDir, fileName);
+
+        // Create a new user in the database
+        const newUser = await User.create({
+          username,
+          email,
+          password:password,
+          user_type,
+          contact_info: contactInfo,
+          profile_picture: imageURL,
+          address,
+        });
+
+        res.status(201).json({ message: 'User registered successfully', user: newUser });
+      } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ message: 'Internal Server Error' });
       }
-    }    
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 }
+
+
+const generateImageURL = (destinationDir,fileName) => {
+  // Replace backslashes with forward slashes in the file name
+  const relativePath = fileName.replace(/\\/g, '/');
+  // Append the relative file path to the base URL of your server
+  const baseURL = 'http://192.168.131.1:3001'; // Replace 'http://192.168.131.1:3001' with your actual server URL
+  return `${baseURL}/${destinationDir}/${relativePath}`;
+};
+
 
 const registerBusiness = async (req, res) => {
   const {
@@ -101,16 +138,13 @@ async function login(req, res, secretKey) {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     console.log('User found:', user.toJSON());
 
-    // Check if the provided password matches the stored hashed password
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
+    // Check if the provided password matches the stored password
+    if (password !== user.password) {
       console.log('Password does not match');
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -118,12 +152,13 @@ async function login(req, res, secretKey) {
     // Include the "userId" and "username" in the token payload
     const token = jwt.sign({ userId: user.user_id, username: user.username }, secretKey, { expiresIn: '1h' });
 
-    res.status(200).json({ message: 'Login successful', token, userId: user.user_id, username: user.username,user_type:user.user_type });
+    res.status(200).json({ message: 'Login successful', token, userId: user.user_id, username: user.username, user_type: user.user_type });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+
 
 
 

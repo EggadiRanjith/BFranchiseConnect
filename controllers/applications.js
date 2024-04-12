@@ -1,6 +1,6 @@
-const Application = require('../models/applicationforbussiness');
+const Application = require('../models/applicationforbusiness');
 const Message = require('../models/message');
-const Business = require('../models/bussiness');
+const Business = require('../models/business');
 const User = require('../models/user');
 const Notification = require('../models/notification');
 const { application } = require('express');

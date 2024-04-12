@@ -1,9 +1,11 @@
+// Required modules and database connection
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const User = require('./user');
 const Comment = require('./comments');
 const Notification = require('./notification');
 
+// Define the Post model
 const Post = sequelize.define('post', {
   post_id: {
     type: DataTypes.INTEGER,
@@ -42,14 +44,14 @@ const Post = sequelize.define('post', {
   },
 });
 
-// Establishing relationships
+// Establishing relationships between models
 User.hasMany(Post, { foreignKey: 'author_id' });
 Post.belongsTo(User, { foreignKey: 'author_id' });
 
 Post.hasMany(Comment, { foreignKey: 'post_id' });
 Comment.belongsTo(Post, { foreignKey: 'post_id' });
 
-// Define association with Notification model
-Post.hasMany(Notification, { foreignKey: 'post_id' });
+Post.hasMany(Notification, { foreignKey: 'post_id' }); // Define association with Notification model
 
+// Export Post and Comment models
 module.exports = { Post, Comment };

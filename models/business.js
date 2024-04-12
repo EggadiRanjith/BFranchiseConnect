@@ -1,22 +1,26 @@
+// Import necessary modules
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // Adjust the path accordingly
 const User = require('./user');
 
+// Define the Business model
 const Business = sequelize.define('business', {
+  // Primary key for the business table
   business_id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
+  // Foreign key relationship with the User table
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    // Define a foreign key relationship with the User table
     references: {
       model: 'users', // Adjust the model name if your User model has a different name
       key: 'user_id',
     },
   },
+  // Business details
   business_name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -36,18 +40,20 @@ const Business = sequelize.define('business', {
   contact_info: {
     type: DataTypes.STRING,
   },
+  // Approval status and registration date
   admin_approval_status: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'pending', // Adjust default value as needed
+    defaultValue: 'pending', // Default value for approval status
   },
   registration_date: {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: DataTypes.NOW,
   },
+  // Financial details
   minimum_investment: {
-    type: DataTypes.FLOAT, // Numeric data type for minimum investment
+    type: DataTypes.FLOAT,
   },
   investment_details: {
     type: DataTypes.STRING,
@@ -64,6 +70,7 @@ const Business = sequelize.define('business', {
   growth_potential: {
     type: DataTypes.STRING,
   },
+  // Business strategy and terms
   business_plan: {
     type: DataTypes.STRING,
   },
@@ -74,8 +81,10 @@ const Business = sequelize.define('business', {
     type: DataTypes.STRING,
   },
 });
+
 // Define associations between User and Business
 User.hasOne(Business, { foreignKey: 'user_id' });
 Business.belongsTo(User, { foreignKey: 'user_id' });
 
+// Export the Business model
 module.exports = Business;
