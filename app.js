@@ -69,7 +69,6 @@ app.post('/api/register-business', registerBusiness);
 
 // Login route
 app.post('/api/login', (req, res) => {
-  console.log('hi'); // Add this log statement for debugging
   login(req, res, secretKey);
 });
 
