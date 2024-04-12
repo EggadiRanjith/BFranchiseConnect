@@ -95,7 +95,7 @@ const generateImageURL = (destinationDir,fileName) => {
   // Replace backslashes with forward slashes in the file name
   const relativePath = fileName.replace(/\\/g, '/');
   // Append the relative file path to the base URL of your server
-  const baseURL = 'http://192.168.131.1:3001'; // Replace 'http://192.168.131.1:3001' with your actual server URL
+  const baseURL = 'https://franchiseconnectt.up.railway.app'; // Replace 'http://192.168.131.1:3001' with your actual server URL
   return `${baseURL}/${destinationDir}/${relativePath}`;
 };
 
