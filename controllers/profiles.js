@@ -52,7 +52,7 @@ const getUserProfile = async (req, res) => {
 const getAllProfiles = async (req, res) => {
   try {
     const profiles = await User.findAll({
-      attributes: ['user_id', 'username', 'profile_picture'],
+      attributes: ['user_id', 'username', 'profile_picture','user_type'],
     });
 
     res.json(profiles);
