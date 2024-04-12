@@ -68,7 +68,11 @@ app.post('/api/register', register);
 app.post('/api/register-business', registerBusiness);
 
 // Login route
-app.post('/api/login', (req, res) => login(req, res, secretKey));
+app.post('/api/login', (req, res) => {
+  console.log('hi'); // Add this log statement for debugging
+  login(req, res, secretKey);
+});
+
 
 // Protected route for retrieving user profile
 app.get('/api/profile', authenticateMiddleware, getProfile);
@@ -379,7 +383,7 @@ app.use((err, req, res, next) => {
 });
 
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
