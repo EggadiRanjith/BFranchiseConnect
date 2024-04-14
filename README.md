@@ -1,3 +1,4 @@
+
 # Backend API Server
 
 Welcome to the backend API server for your project! This Node.js application serves as the backbone for handling data interactions, authentication, and real-time communication.
@@ -38,18 +39,19 @@ Welcome to the backend API server for your project! This Node.js application ser
 ## Installation
 
 1. Clone the repository:
+   ```bash
+   git clone https://github.com/EggadiRanjith/BfranchiseConnect.git
+   ```
 
-   git clone <repository-url>
-  
-
-3. Navigate to the project directory:
-
+2. Navigate to the project directory:
+   ```bash
    cd backend
+   ```
 
-5. Install dependencies:
-6. 
+3. Install dependencies:
+   ```bash
    npm install
-   
+   ```
 
 ## Configuration
 
@@ -59,11 +61,11 @@ Welcome to the backend API server for your project! This Node.js application ser
 ## Usage
 
 1. Start the server:
+   ```bash
+   npm start
+   ```
 
-   npm start / node app js
-   
-
-3. Access the API endpoints and WebSocket services as needed.
+2. Access the API endpoints and WebSocket services as needed.
 
 ## Contributing
 
