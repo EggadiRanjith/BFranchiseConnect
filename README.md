@@ -38,13 +38,16 @@ Welcome to the backend API server for your project! This Node.js application ser
 ## Installation
 
 1. Clone the repository:
+
    git clone <repository-url>
   
 
 3. Navigate to the project directory:
+
    cd backend
 
-4. Install dependencies:
+5. Install dependencies:
+6. 
    npm install
    
 
@@ -56,10 +59,11 @@ Welcome to the backend API server for your project! This Node.js application ser
 ## Usage
 
 1. Start the server:
-   npm start
+
+   npm start / node app js
    
 
-2. Access the API endpoints and WebSocket services as needed.
+3. Access the API endpoints and WebSocket services as needed.
 
 ## Contributing
 
