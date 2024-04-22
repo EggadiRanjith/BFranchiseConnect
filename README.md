@@ -14,8 +14,8 @@ The backend API server, developed with Node.js and Express, serves as the backbo
 
 Please refer to the README files in the respective branches for detailed installation instructions and usage guidelines for the frontend and backend components.
 
-- [Frontend README](frontend/README.md)
-- [Backend README](backend/README.md)
+- [Frontend README](../../tree/frontend/README.md)
+- [Backend README](../../tree/backend/README.md)
 
 ## Contributing
 
