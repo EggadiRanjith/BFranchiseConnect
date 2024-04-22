@@ -40,7 +40,7 @@ Welcome to the backend API server for your project! This Node.js application ser
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/EggadiRanjith/BfranchiseConnect.git
+   git clone https://github.com/EggadiRanjith/FranchiseConnect-app.git
    ```
 
 2. Navigate to the project directory:
