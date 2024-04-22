@@ -78,7 +78,7 @@ Welcome to the frontend of your project! This React Native application provides 
 Contributions are welcome! If you find any bugs or have suggestions for improvements, please submit a pull request or open an issue.
 
 ## License
-This project is licensed under the ISC License. See the LICENSE file for details.
+This project is licensed under the ISC License. See the [LICENSE](LICENSE) file for details.
 
 ## Support
 For support or inquiries, please contact ranjitheggadi@gmail.com
