@@ -29,7 +29,7 @@ Welcome to the frontend of your project! This React Native application provides 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/EggadiRanjith/BfranchiseConnect.git
+   git clone https://github.com/EggadiRanjith/franchiseConnect.git
    ```
 
 2. Navigate to the project directory:
